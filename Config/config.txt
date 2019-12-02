@@ -1,0 +1,13 @@
+# Interpretat ca linie-comentariu
+
+Port: 9913
+MaxThreads: 10
+LogLevel: 2
+
+Redirects: \sites\redirects.txt
+Listing: \sites\listing.txt
+
+Sites:
+site.test \sites\site.test\
+site.test2 \sites\site.test2\
+site.test3 \sites\site.test3\

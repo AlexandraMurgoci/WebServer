@@ -1,0 +1,2 @@
+site.test\img.png site.test\dir1\img.png
+site.test2\f4.txt site.test3\f4.txt

@@ -1,0 +1,3 @@
+site.test es.txt fis1.txt fis2.txt
+site.test2 f1.txt f2.txt f3.txt
+site.test3 f1.txt f2.txt f3.txt
