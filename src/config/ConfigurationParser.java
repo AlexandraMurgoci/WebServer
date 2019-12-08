@@ -29,6 +29,8 @@ public class ConfigurationParser {
 
         this.relativePath = this.relativePath + "Config";
 
+        configuration.setRelativePath(this.relativePath + "\\");
+
         parseConfigFile();
         parseRedirectsFile();
         parseListingFile();

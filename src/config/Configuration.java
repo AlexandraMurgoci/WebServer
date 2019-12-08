@@ -17,6 +17,16 @@ public class Configuration {
     private CopyOnWriteArrayList<String> redirects = new CopyOnWriteArrayList<>();
     private ConcurrentMap<String, CopyOnWriteArrayList<String>> sitesToListings = new ConcurrentHashMap<>();
 
+    private String relativePath;
+
+    public String getRelativePath() {
+        return relativePath;
+    }
+
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
+    }
+
     public int getPort() {
         return port;
     }
@@ -92,6 +102,7 @@ public class Configuration {
                 ", sitesToSitesPath=" + sitesToSitesPath +
                 ", redirects=" + redirects +
                 ", sitesToListings=" + sitesToListings +
+                ", relativePath='" + relativePath + '\'' +
                 '}';
     }
 }

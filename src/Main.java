@@ -19,7 +19,7 @@ public class Main {
             try {
                 Socket s=serverSocket.accept(); // cerere pă socket
                 System.out.println("Client connected on "+s.getPort()); // --> apel metoda clasa Logger (IZA)
-                RequestParser C = new RequestParser(s); // se creaza un thread ( obiect RequestParser (MONA) ) pentru fiecare cerere de resursa
+                RequestParser C = new RequestParser(s, configuration); // se creaza un thread ( obiect RequestParser (MONA) ) pentru fiecare cerere de resursa
                 executor.submit(C); // Start Thread for request; se apeleaza metoda "run()" din clasa RequestParser
             }
             catch (IOException exception) {
