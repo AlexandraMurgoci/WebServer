@@ -24,7 +24,7 @@ public class ConfigurationParser {
         this.relativePath = relativePath;
     }
 
-    public Configuration parse() {
+    public Configuration parse() throws IOException{
         this.configuration = new Configuration();
 
         this.relativePath = this.relativePath + "Config";
@@ -38,136 +38,100 @@ public class ConfigurationParser {
         return configuration;
     }
 
-    private void parseConfigFile() {
+    private void parseConfigFile() throws IOException{
         String configFile = this.relativePath + "\\config.txt";
         BufferedReader br = null;
         String line = "";
-        try {
-            br = new BufferedReader(new FileReader(configFile));
-            boolean readSites = false;
-            while( (line = br.readLine()) != null){
-                if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
-                    if(!readSites) {
-                        if(!line.contains(":")) throw new InvalidStateException("Line should containt a token separated by :");
-                        String[] tokenAndValue = line.split(":");
-                        switch (tokenAndValue[0].trim()) {
-                            case ConfigurationTokens.configTokens.PORT:
-                                int port = Integer.parseInt(tokenAndValue[1].trim());
-                                configuration.setPort(port);
-                                break;
-                            case ConfigurationTokens.configTokens.MAX_THREADS:
-                                int maxThreads = Integer.parseInt(tokenAndValue[1].trim());
-                                configuration.setMaxThreads(maxThreads);
-                                break;
-                            case ConfigurationTokens.configTokens.LOG_LEVEL:
-                                int logLevel = Integer.parseInt(tokenAndValue[1].trim());
-                                configuration.setLogLevel(logLevel);
-                                break;
-                            case ConfigurationTokens.configTokens.REDIRECTS:
-                                String redirectsPath = this.relativePath + (tokenAndValue[1].trim());
-                                configuration.setRedirectsFile(redirectsPath);
-                                break;
-                            case ConfigurationTokens.configTokens.LISTING:
-                                String listingPath = this.relativePath + (tokenAndValue[1].trim());
-                                configuration.setListingFile(listingPath);
-                                break;
-                            case ConfigurationTokens.configTokens.SITES:
-                                readSites = true;
-                        }
-                    }
-                    else {
-                        if(!line.trim().contains(" "))throw new InvalidStateException("Line should containt a site name and it's location separated by ' '");
-                        String[] siteAndPath = line.split(" ");
-                        configuration.getSitesToSitesPath().put(siteAndPath[0], siteAndPath[1]);
+
+        br = new BufferedReader(new FileReader(configFile));
+        boolean readSites = false;
+        while( (line = br.readLine()) != null){
+            if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
+                if(!readSites) {
+                    if(!line.contains(":")) throw new InvalidStateException("Line should containt a token separated by :");
+                    String[] tokenAndValue = line.split(":");
+                    switch (tokenAndValue[0].trim()) {
+                        case ConfigurationTokens.configTokens.PORT:
+                            int port = Integer.parseInt(tokenAndValue[1].trim());
+                            configuration.setPort(port);
+                            break;
+                        case ConfigurationTokens.configTokens.MAX_THREADS:
+                            int maxThreads = Integer.parseInt(tokenAndValue[1].trim());
+                            configuration.setMaxThreads(maxThreads);
+                            break;
+                        case ConfigurationTokens.configTokens.LOG_LEVEL:
+                            int logLevel = Integer.parseInt(tokenAndValue[1].trim());
+                            configuration.setLogLevel(logLevel);
+                            break;
+                        case ConfigurationTokens.configTokens.REDIRECTS:
+                            String redirectsPath = this.relativePath + (tokenAndValue[1].trim());
+                            configuration.setRedirectsFile(redirectsPath);
+                            break;
+                        case ConfigurationTokens.configTokens.LISTING:
+                            String listingPath = this.relativePath + (tokenAndValue[1].trim());
+                            configuration.setListingFile(listingPath);
+                            break;
+                        case ConfigurationTokens.configTokens.SITES:
+                            readSites = true;
                     }
                 }
-            }
-        } catch (FileNotFoundException e) {
-            System.err.println("Oops! Please check for the presence of file in the path specified.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("Oops! Unable to read the file.");
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                if(br!=null)br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                else {
+                    if(!line.trim().contains(" "))throw new InvalidStateException("Line should containt a site name and it's location separated by ' '");
+                    String[] siteAndPath = line.split(" ");
+                    configuration.getSitesToSitesPath().put(siteAndPath[0], siteAndPath[1]);
+                }
             }
         }
+
+        br.close();
     }
 
-    private void parseRedirectsFile() {
+    private void parseRedirectsFile() throws IOException{
         BufferedReader br = null;
         String line = "";
         List<String> redirectsList = new ArrayList<>();
-        try {
-            br = new BufferedReader(new FileReader(configuration.getRedirectsFile()));
-            while( (line = br.readLine()) != null){
-                if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
-                    String[] redirectsArray = line.split(" ");
-                    for(String redirect : redirectsArray) {
-                        if(redirect.length()!=0) redirectsList.add(redirect);
-                    }
+
+        br = new BufferedReader(new FileReader(configuration.getRedirectsFile()));
+        while( (line = br.readLine()) != null){
+            if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
+                String[] redirectsArray = line.split(" ");
+                for(String redirect : redirectsArray) {
+                    if(redirect.length()!=0) redirectsList.add(redirect);
                 }
             }
-            CopyOnWriteArrayList<String> redirects = new CopyOnWriteArrayList<>(redirectsList);
+        }
+        CopyOnWriteArrayList<String> redirects = new CopyOnWriteArrayList<>(redirectsList);
 
-            configuration.setRedirects(redirects);
-        } catch (FileNotFoundException e) {
-            System.err.println("Oops! Please check for the presence of file in the path specified.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("Oops! Unable to read the file.");
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                if(br!=null)br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        configuration.setRedirects(redirects);
+
+        br.close();
     }
 
-    private void parseListingFile() {
+    private void parseListingFile() throws IOException{
         BufferedReader br = null;
         String line = "";
         ConcurrentMap<String, CopyOnWriteArrayList<String>> sitesToListings = new ConcurrentHashMap<>();
-        try {
-            br = new BufferedReader(new FileReader(configuration.getListingFile()));
-            while( (line = br.readLine()) != null){
-                if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
-                    String[] listingArray = line.split(" ");
-                    if(listingArray.length!=0 && listingArray[0].length()!=0) {
-                        String site = listingArray[0];
-                        List<String> listingList = new ArrayList<>();
-                        for (String listing : listingArray) {
-                            if (listing.length() != 0) listingList.add(listing);
-                        }
-                        listingList.remove(0);
-                        CopyOnWriteArrayList<String> listings = new CopyOnWriteArrayList<>(listingList);
-                        sitesToListings.put(site, listings);
+
+        br = new BufferedReader(new FileReader(configuration.getListingFile()));
+        while( (line = br.readLine()) != null){
+            if(line.length()!=0 && line.charAt(0)!='#' && line.trim().length()!=0) {
+                String[] listingArray = line.split(" ");
+                if(listingArray.length!=0 && listingArray[0].length()!=0) {
+                    String site = listingArray[0];
+                    List<String> listingList = new ArrayList<>();
+                    for (String listing : listingArray) {
+                        if (listing.length() != 0) listingList.add(listing);
                     }
+                    listingList.remove(0);
+                    CopyOnWriteArrayList<String> listings = new CopyOnWriteArrayList<>(listingList);
+                    sitesToListings.put(site, listings);
                 }
             }
+        }
 
-            configuration.setSitesToListings(sitesToListings);
-        } catch (FileNotFoundException e) {
-            System.err.println("Oops! Please check for the presence of file in the path specified.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.err.println("Oops! Unable to read the file.");
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                if(br!=null)br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        configuration.setSitesToListings(sitesToListings);
+
+        br.close();
     }
 
     private static class ConfigurationTokens {
